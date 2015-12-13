@@ -9,7 +9,10 @@ called.
 In general, every single method that you add to your classes should be categorized as one of the method types outlined
 here. Each type of method has different requirements, restrictions, etc.
 
-## Constructor methods
+[Constructor methods](#constructor-methods)
+[Init methods](#init-methods)
+
+# Constructor methods
 
 Constructor methods are called when an object instance is created. Most languages have a single constructor that allows
 you to set default values for your properties. Here are the rules for constructor methods.
@@ -21,7 +24,7 @@ you to set default values for your properties. Here are the rules for constructo
 * Object initialization and validation should never be performed in the constructor method. That job is left to init
   methods instead.
 
-## Init methods
+# Init methods
 
 Init methods are used to initialize your objects. There are 2 types of init methods.  
 **Convenience init methods** and **Designated init methods**.  
@@ -87,6 +90,8 @@ An easy way to remember these rules are:
 
 Here is a quick illustration that outlines these rules
 ![alt text](initializerDelegation01_2x.png "Init method illustration")
+(This illustration was taken from the Swift Programming Language ePublication at
+https://swift.org/documentation/TheSwiftProgrammingLanguage(Swift2.2).epub)
 
 Wait.... we're not done. There are a few other things to consider or *rules* for your init methods.
 
@@ -128,6 +133,18 @@ some examples (Written in pseudo code)
              
              // Public init method with multiple parameters
              func initWithPrefix(prefix, name, suffix) {
+                 // init code here
+                 return self
+             }
+             
+             // Protected init method with a single parameter
+             func _initWithFullName(fullName) {
+                 // init code here
+                 return self
+             }
+             
+             // Protected init method with multiple parameters
+             func _initWithFirstName(firstName, lastName) {
                  // init code here
                  return self
              }
