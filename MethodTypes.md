@@ -9,8 +9,24 @@ called.
 In general, every single method that you add to your classes should be categorized as one of the method types outlined
 here. Each type of method has different requirements, restrictions, etc.
 
-[Constructor methods](#constructor-methods)
-[Init methods](#init-methods)
+* [Public methods vs protected methods](#public-methods-vs-protected-methods)
+* [Constructor methods](#constructor-methods)
+* [Init methods](#init-methods)
+* [Give methods](#give-methods)
+* [Validate methods](#validate-methods)
+* [Do methods](#do-methods)
+* [On methods](#on-methods)
+
+# Public methods vs protected methods
+
+Public methods should start with a lower case letter while protected (or private) methods should start with an
+underscore and lower case letter. Here are some examples:
+
+        // Public method
+        func myPublicMethod() { }
+        
+        // Protected method
+        func _myProtectedMethod() { }
 
 # Constructor methods
 
@@ -169,3 +185,246 @@ some examples (Written in pseudo code)
   The exception to this rule is the Swift programming language which allows many init methods and they don't return
   anything. Also, each programming language is a bit different, so you may want to take a look at some existing init
   code to see how it's done.
+
+**Init method summary**
+
+* **Naming convention** - Must be named `init` or `_init` if no parameters or `initWith` / `_initWith` if there is at
+  least 1 parameter. (An exception is the Swift programming language which just used `init` for all init methods and the
+  difference lies in the signature of the method)
+
+* **Parameters** - May take 0 or more parameters
+
+* **Return value** - Must return the object instance itself (An exception is the Swift programming language which
+  doesn't return anything)
+  
+* **Throws** - May throw an exception if the object couldn't be put in a valid state
+
+* **Call** - Must call another init method until a base designated init method is called. May call *validate* methods to
+  validate values before returning. May not call any other methods.
+
+* **State** - Designated init methods MUST initialize object state. Convenience init methods MAY initialize object state
+  after a designated init method is called.
+
+# Give methods
+
+Give methods are simple. They simply take 1 or more parameters (in most cases) and return a value. Give methods are
+descriptively named after what they return. For example, if the method takes an integer value and returns the square
+root of that integer, it's signature might be something like: `func squareRootOfIntValue(intValue) { }`
+
+Here are some rules regarding give methods
+
+* Must take 1 or more parameters (An exception to this rule is where a programming language does not have computed
+  properties. In that case, you can use give methods with no parameters as computed properties. [Learn more about
+  properties here](Properties.md))
+
+* Must be named descriptively after what it is they return along with the name of the first parameter of the method.
+  They must never start with a verb like `do`, `init`, `set`, `load`, `save`. The official format is a noun, followed by
+  a preposition, then the name of the first parameter. If the method does not take any parameters (in the case of using
+  give methods in place of computed properties) then the method should just be named after what it returns. Rather than
+  describing the naming rules in detail, we are just going to give you some signature examples using pseudo code:
+  
+        // WRONG
+        // The name doesn't include the first parameter
+        func squareRootOf(intValue) { }
+        
+        // WRONG
+        // The name doesn't include a preposition like "Of", "With", "At", "For", etc.
+        func squareRootIntValue(intValue)
+        
+        // CORRECT
+        func squareRootOfIntValue(intValue) { }
+        
+        // WRONG
+        // The name starts with a verb
+        func saveName(key) { }
+        
+        // WRONG
+        // The name doesn't include a preposition or first parameter
+        func savedName(key) { }
+        
+        // WRONG
+        // The name doesn't include a preposition
+        func savedNameKey(key) { }
+        
+        // CORRECT
+        func savedNameForKey(key) { }
+        
+        // Here's an example with multiple parameters
+        // Notice that the 2nd and 3rd parameters are not part of the method name
+        func fullNameForFirstName(firstName, lastName, suffix) { }
+        
+        // Here's an example with no parameters
+        // Notice that there is no preposition or parameter name in the method name
+        func fullName() { }
+
+* Must return a value. If a valid value cannot be returned, a `NULL` object must be returned. In this case, however, you
+  can't just return `null` though. You have to obey the rules in [Optional values](OptionalValues.md). In Swift, you can
+  return `nil` because `nil` is type safe and follows the rules of optional values, but in other languages, you would
+  return an optional wrapped object that must be unwrapped in order to see if it is `NULL` or not.)
+
+* May not throw an exception in any case where all valid typed parameters are passed into the method. If the method
+  calls methods that may throw an exception then those exceptions MUST be caught and a valid value returned every time
+  and in every single situation where valid typed parameters are passed in.  
+  
+  >If the user passes invalid typed parameters into the function, then the behavior is undefined. Your code should never
+  >try to handle situations where invalid parameter types are passed into the method. For example, if you have a *give
+  >method* that takes 2 integers and the user passes in 2 strings instead, it's up to the language itself to figure out
+  >what to do. Some languages will throw an exception and others will simply convert the values so that a value is
+  >returned anyway. In any case, the user should NEVER pass invalid typed parameters into any method.
+
+* May not modify the state of the object at all, ever. This means that *give methods* may not change property values,
+  load data from an external source, or save data to an external source. They also may not modify any child objects or
+  dependencies. The purpose of give methods is simply to compute and return data based on the current state of the
+  object.
+  
+There are also certain special *give methods* that start with the word `_loaded`. These methods are reserved for lazy
+loading properties and must be protected. The purpose of these methods are to load the value of a lazy property. For
+more information regarding lazy properties, see [Properties](Properties.md)
+  
+**Give method summary**
+
+* **Naming convention** - Must start with a noun, followed by a preposition, then the name of the first parameter. In the
+  case that give methods must be used in place of computed properties, the name must be a noun. The noun in the name
+  should represent the return value of the method.
+
+* **Parameters** - Must take 1 or more parameters in most cases. In the case that give methods must be used in place of
+  computed properties, give methods may take no parameters.
+  
+* **Return value** - Must return a valid value or a null wrapped object if a valid value cannot be returned.
+
+* **Throws** - Must never throw an exception and must catch all exceptions if the method calls other methods that may
+  throw an exception.
+  
+* **Call** - May call other *give methods* or *validate methods*. May not call any other methods.
+
+* **State** - May not modify object state.
+  
+# Validate methods
+
+The purpose of *validate methods* is to validate some type of data. They MUST take at least 1 parameter to validate
+the value of. You should call *validate methods* from your init methods before setting the values of properties as well
+as from any method that updates the state of the object. *Validate methods* are here to make sure that your objects are
+ALWAYS in a valid state. Here are the rules for *validate methods*
+
+* Must start with the word `validate` (or `_validate` if protected) and end with the name of the first parameter. In
+  most cases, the word `validate` and the name of the first parameter *is* the method name, but it is acceptable to put
+  other words in between in order to make the name descriptive of what it actually validates. Here are some examples:
+  
+        // WRONG
+        // No parameters. All validate methods must take at least 1 parameter
+        func validateName() { }
+        
+        // WRONG
+        // Does not end with the name of the first parameter
+        func validateUser(name) { }
+        
+        // CORRECT
+        function validateUserName(userName) { }
+        
+        // ALSO CORRECT
+        // Notice, there are other words to make the function more descriptive
+        // This function validates the email address for a given user id
+        function validateEmailForUserId(userId) { }
+
+* Validate methods MUST take at least 1 parameter, no exceptions. There is no point in validating current state of an
+  object because it should always be in a valid state.
+  
+* Validate methods must NEVER return a value, no exceptions. If you need a value, returned, you should be looking at
+  [give methods](#give-methods) instead. If the method returns, then the value is valid. If the value is invalid, your
+  method must throw an exception.
+  
+* Validate methods MUST throw an exception if the input cannot be validated or is invalid for any reason. The exception
+  should (but doesn't have to) contain an error message that explains why validation failed. This error message can be
+  extracted in order to be logged or to be displayed to the user if required.
+
+Here is a simple example of a *validate method* written in pseudo code:
+
+        // Sample validate method that validates the length of a name doesn't exceed 60 characters
+        func _validateLengthOfName(name) {
+            
+            // If the length exceeds 60 characters, throw an exception
+            if name.length > 60 {
+                throw ValueExceptionWithMessage("The length of a name cannot exceed 60 characters")
+            }
+            
+            // If we get here, it is validated, no need to return anything
+        }
+
+**Validate method summary**
+
+* **Naming convention** - Must start with `validate` or `_validate` and end with the name of the first parameter. Other
+  words are permitted in between to make the name more descriptive.
+  
+* **Parameters** - Must take at least 1 parameter.
+
+* **Return value** - Must never return a value.
+
+* **Throws** - May throw an exception if the value couldn't be validated.
+
+* **Call** - May call *give methods* or other *validate methods*. May not call any other methods.
+
+* **State** - May not modify object state.
+
+# Do methods
+
+The purpose of *do methods* is to modify the state of the object. They can either modify properties, load data from an
+external source, or even save data to an external source. *Do methods* never return a value and may throw an exception
+of the operation fails.
+
+The rules for do methods are pretty simple. They must start with the word `do` or `_do` if protected and must end with
+the name of the first parameter if there is one. They must never return a value either. *Do methods* are the *engine
+and gears* of your class. Call these to *do* something. If you want to load data or save data to an external source, use
+a *do method*. If you want to update the value of a property, use a *do method*.
+
+By the way, you should never set a property directly from the outside. You should always use a *do method* to update a
+property if it should be able to be updated.
+
+Here is a simple example of a *do method* that updates the `name` property of the object:
+
+        // Sample do method that updates the name property
+        func doUpdateName(name) {
+        
+            // Validate the name first
+            self._validateLengthOfName(name)
+            
+            // We are ok, set the value
+            self.name = name
+        }
+
+**Do method summary**
+
+* **Naming convention** - Must start with `do` or `_do` and end with the name of the first parameter if there is one.
+  Other words are permitted in between to make the name more descriptive of what it does.
+  
+* **Parameters** - May take 0 or more parameters.
+
+* **Return value** - Must never return a value
+
+* **Throws** - May throw an exception if the operation could not be completed.
+
+* **Call** - May call any other method except *init methods*
+
+* **State** - May modify object state.
+
+# On methods
+
+*On methods* are just like *do methods*. They follow all the same rules as *do methods* except that they MUST be
+protected and the name must start with `_on` instead of `do` or `_do`.
+
+*On methods* are used as event handlers and are meant to be called when an event is triggered. For more information
+about event handling see [Event handling](EventHandling.md)
+
+**On method summary**
+
+* **Naming convention** - Must start with `_on` and end with the name of the first parameter if there is one.
+  Other words are permitted in between to make the name more descriptive of what it does.
+
+* **Parameters** - May take 0 or more parameters.
+
+* **Return value** - Must never return a value
+
+* **Throws** - May throw an exception if the operation could not be completed.
+
+* **Call** - May call any other method except *init methods*
+
+* **State** - May modify object state.
