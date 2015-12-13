@@ -13,3 +13,5 @@ this rule on a per case basis, but generally, code that does not follow standard
 # Topics
 
 [Low level code syntax standards](LowLevelCodeSyntaxStandards.md)
+
+[Naming conventions](NamingConventions.md)
