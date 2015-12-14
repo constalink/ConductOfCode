@@ -45,7 +45,7 @@ Property values may only be set within the object constructor, [init methods](Me
 [do methods](MethodTypes.md#do-methods), or [on methods](MethodTypes.md#on-methods). You may not set the values of a
 property from outside the class or via any other method. Take the following code snippet as an example:
 
-```
+```javascript
 // In this example, assume we have a class called Person that
 // has a name property
 class Person {
@@ -86,7 +86,7 @@ Getting property values is simple. *Get the value... do with it what you will*.
 The only rule here is that you may not get protected property values from outside the class. Protected properties should
 only be accessible within the class (and child classes)
 
-```
+```javascript
 // Our Person class definition...
 // this time with a protected property called _password
 class Person {
@@ -113,7 +113,6 @@ class Person {
         }
     }
 }
-```
 
 // Create our object instance
 person = Person().initWithName("Jack")
@@ -126,6 +125,7 @@ password = person._password
 isMatches = person.isMatchesPassword("Hello")
 
 // isMatches is now false because it didn't match
+```
 
 # Lazy properties
 
@@ -133,7 +133,7 @@ Lazy properties are special in that they don't have a value until they are *requ
 until the value is loaded internally due to some other circumstance). Different languages have different syntax as far
 as how lazy properties are handled, but here is the basic pseudo code that explains how they work.
 
-```
+```javascript
 // Assume our property is fullName
 
 // We have a protected property that backs the normal property
@@ -154,7 +154,6 @@ property fullName {
     // Return the value
     return self._fullNameLazy
 }
-```
 
 // Special give method that gives the loaded value
 // this method must start with _loaded and end with the name of the property
@@ -164,11 +163,12 @@ func _loadedFullName() {
     // Return the loaded value
     return self.firstName + " " + self.lastName
 }
+```
 
 From the outside, it looks like a normal property and we can't tell the difference between a normal property and a lazy
 property. Consider the following code snippet (written in pseudo code)
 
-```
+```javascript
 // Our same ole Person class... with some changes
 class Person {
 
@@ -204,7 +204,6 @@ class Person {
         return self.firstName + " " + self.lastName
     }
 }
-```
 
 // From the outside, firstName, lastName, and fullName 
 // simply look like normal properties
@@ -219,6 +218,7 @@ print(person.lastName)
 
 // Prints "Jack Smith"
 print(person.fullName)
+```
 
 **About the loader method**  
 The loader method is a special kind of [give method](MethodTypes.md#give-methods) that *gives* the loaded value for a
