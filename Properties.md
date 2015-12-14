@@ -45,32 +45,34 @@ Property values may only be set within the object constructor, [init methods](Me
 [do methods](MethodTypes.md#do-methods), or [on methods](MethodTypes.md#on-methods). You may not set the values of a
 property from outside the class or via any other method. Take the following code snippet as an example:
 
-        // In this example, assume we have a class called Person that
-        // has a name property
-        class Person {
-        
-            // Init with a name
-            func initWithName(name) {
-                self.name = name
-                return self
-            }
-            
-            property name = ""
-        }
-        
-        // Create our object instance
-        person = Person().initWithName("Jack")
-        
-        // WRONG
-        // Mutating an object from outside the class is not allowed
-        person.name = "Jill"
-        
-        // CORRECT
-        // Instead, call a *do method* to update the value if it exists
-        // This makes the object responsible for it's own mutation.
-        // Of course, you would need to add the "doUpdateName" method
-        // to the class definition above.
-        person.doUpdateName("Jill")
+```
+// In this example, assume we have a class called Person that
+// has a name property
+class Person {
+
+    // Init with a name
+    func initWithName(name) {
+        self.name = name
+        return self
+    }
+    
+    property name = ""
+}
+
+// Create our object instance
+person = Person().initWithName("Jack")
+
+// WRONG
+// Mutating an object from outside the class is not allowed
+person.name = "Jill"
+
+// CORRECT
+// Instead, call a *do method* to update the value if it exists
+// This makes the object responsible for it's own mutation.
+// Of course, you would need to add the "doUpdateName" method
+// to the class definition above.
+person.doUpdateName("Jill")
+```
 
 One more thing to consider is that all methods that update or set property values MUST make sure the value is valid
 before setting the property value on the object. If the value is invalid, you should throw an exception. However, you
@@ -84,44 +86,46 @@ Getting property values is simple. *Get the value... do with it what you will*.
 The only rule here is that you may not get protected property values from outside the class. Protected properties should
 only be accessible within the class (and child classes)
 
-        // Our Person class definition...
-        // this time with a protected property called _password
-        class Person {
+```
+// Our Person class definition...
+// this time with a protected property called _password
+class Person {
+
+    // Init with a name
+    func initWithName(name) {
+        self.name = name
         
-            // Init with a name
-            func initWithName(name) {
-                self.name = name
-                
-                return self
-            }
-            
-            property name = ""
-            
-            property _password = "p@55w0rD"
-            
-            func isMatchesPassword(password) {
-            
-                // CORRECT
-                // We can read the _password property within the class definition
-                if password == self._password {
-                    return true
-                } else {
-                    return false
-                }
-            }
+        return self
+    }
+    
+    property name = ""
+    
+    property _password = "p@55w0rD"
+    
+    func isMatchesPassword(password) {
+    
+        // CORRECT
+        // We can read the _password property within the class definition
+        if password == self._password {
+            return true
+        } else {
+            return false
         }
-        
-        // Create our object instance
-        person = Person().initWithName("Jack")
-        
-        // WRONG
-        // Can't read _password from outside the class
-        password = person._password
-        
-        // As per the class definition, we can check if the password matches though
-        isMatches = person.isMatchesPassword("Hello")
-        
-        // isMatches is now false because it didn't match
+    }
+}
+```
+
+// Create our object instance
+person = Person().initWithName("Jack")
+
+// WRONG
+// Can't read _password from outside the class
+password = person._password
+
+// As per the class definition, we can check if the password matches though
+isMatches = person.isMatchesPassword("Hello")
+
+// isMatches is now false because it didn't match
 
 # Lazy properties
 
@@ -129,88 +133,92 @@ Lazy properties are special in that they don't have a value until they are *requ
 until the value is loaded internally due to some other circumstance). Different languages have different syntax as far
 as how lazy properties are handled, but here is the basic pseudo code that explains how they work.
 
-        // Assume our property is fullName
-        
-        // We have a protected property that backs the normal property
-        // that ends with *Lazy*. It must be initialized to a null value
-        property _fullNameLazy = null
-        
-        // Then we have the normal property which is a computed property behind the scenes
-        property fullName {
-        
-            // If the lazy property is null, we need to load it
-            if self._fullNameLazy is null {
-            
-                // Load it with a give method.
-                // We could also just load it right here, inline
-                self._fullNameLazy = self._loadedFullName()
-            }
-            
-            // Return the value
-            return self._fullNameLazy
-        }
-        
-        // Special give method that gives the loaded value
-        // this method must start with _loaded and end with the name of the property
-        // It may not take any parameters and may not throw an exception.
-        func _loadedFullName() {
-            
-            // Return the loaded value
-            return self.firstName + " " + self.lastName
-        }
+```
+// Assume our property is fullName
+
+// We have a protected property that backs the normal property
+// that ends with *Lazy*. It must be initialized to a null value
+property _fullNameLazy = null
+
+// Then we have the normal property which is a computed property behind the scenes
+property fullName {
+
+    // If the lazy property is null, we need to load it
+    if self._fullNameLazy is null {
+    
+        // Load it with a give method.
+        // We could also just load it right here, inline
+        self._fullNameLazy = self._loadedFullName()
+    }
+    
+    // Return the value
+    return self._fullNameLazy
+}
+```
+
+// Special give method that gives the loaded value
+// this method must start with _loaded and end with the name of the property
+// It may not take any parameters and may not throw an exception.
+func _loadedFullName() {
+    
+    // Return the loaded value
+    return self.firstName + " " + self.lastName
+}
 
 From the outside, it looks like a normal property and we can't tell the difference between a normal property and a lazy
 property. Consider the following code snippet (written in pseudo code)
 
-        // Our same ole Person class... with some changes
-        class Person {
+```
+// Our same ole Person class... with some changes
+class Person {
+
+    func initWithFirstName(firstName, lastName) {
+        self.firstName = firstName
+        self.lastName = lastName
+        return self
+    }
+
+    // First name
+    property firstName = ""
+    
+    // Last name
+    property lastName = ""
+    
+    // Full name is lazy loaded
+    property _fullNameLazy = null
+    property fullName {
+        if self._fullNameLazy is null {
         
-            func initWithFirstName(firstName, lastName) {
-                self.firstName = firstName
-                self.lastName = lastName
-                return self
-            }
-        
-            // First name
-            property firstName = ""
+            self._fullNameLazy = self._loadedFullName()
             
-            // Last name
-            property lastName = ""
-            
-            // Full name is lazy loaded
-            property _fullNameLazy = null
-            property fullName {
-                if self._fullNameLazy is null {
-                
-                    self._fullNameLazy = self._loadedFullName()
-                    
-                    // We could have also loaded the value inline like this
-                    // self._fullNameLazy = self.firstName + " " + self.lastName
-                }
-                return self._fullNameLazy
-            }
-            
-            // Loader method
-            func _loadedFullName() {
-            
-                // Return the loaded value
-                return self.firstName + " " + self.lastName
-            }
+            // We could have also loaded the value inline like this
+            // self._fullNameLazy = self.firstName + " " + self.lastName
         }
-        
-        // From the outside, firstName, lastName, and fullName 
-        // simply look like normal properties
-        
-        person = Person().initWithFirstName("Jack", "Smith")
-        
-        // Prints "Jack"
-        print(person.firstName)
-        
-        // Prints "Smith"
-        print(person.lastName)
-        
-        // Prints "Jack Smith"
-        print(person.fullName)
+        return self._fullNameLazy
+    }
+    
+    // Loader method
+    func _loadedFullName() {
+    
+        // Return the loaded value
+        return self.firstName + " " + self.lastName
+    }
+}
+```
+
+// From the outside, firstName, lastName, and fullName 
+// simply look like normal properties
+
+person = Person().initWithFirstName("Jack", "Smith")
+
+// Prints "Jack"
+print(person.firstName)
+
+// Prints "Smith"
+print(person.lastName)
+
+// Prints "Jack Smith"
+print(person.fullName)
 
 **About the loader method**  
 The loader method is a special kind of [give method](MethodTypes.md#give-methods) that *gives* the loaded value for a
