@@ -9,7 +9,15 @@ you can treat the code as a sort of pseudo code. Each language may differ slight
 There may also be language specific rules below. Any rule that is specific to any language takes priority over any
 general rule.
 
-## White space and line endings
+[White space and line endings](#white-space-and-line-endings)
+[Line length and wrapping](#line-length-and-wrapping)
+[Control structures](#control-structures)
+[Semicolons](#semicolons)
+[Comments](#comments)
+[Quotes](#quotes)
+
+
+# White space and line endings
 
 * Always indent using the **TAB** character  
   
@@ -104,7 +112,7 @@ operators.
         returnValue = funcName(param1)
   
   
-## Line length and wrapping
+# Line length and wrapping
   
 * In general line lengths should not exceed 120 characters.  
   
@@ -154,7 +162,7 @@ operators.
   rule for the most part.  
   
   
-## Control structures
+# Control structures
   
 * Always place opening braces on the same line as the condition code and not on it's own line  
 
@@ -215,13 +223,13 @@ that you don't put opening braces on a new line. You can even place comments bet
             // Some statements
         }
   
-## Semicolons
+# Semicolons
   
 * Never use semi colons unless the language **requires** them. This means don't use semicolons in JavaScript, Python,
 Swift, etc... Since PHP requires them, you must use them in PHP
   
   
-## Comments
+# Comments
   
 * Comments should never be on the same line as any code. Comments should always be on their own line and should
   be above the component that they refer to in general. (The exception is Python Doc Blocks which are below the 
@@ -240,7 +248,7 @@ Swift, etc... Since PHP requires them, you must use them in PHP
         // TODO: This is the correct way to make a todo comment
 
 
-## Quotes
+# Quotes
 
 * Always use double quotes for strings unless the language requires single quotes.
 

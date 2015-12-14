@@ -291,7 +291,7 @@ Here are some rules regarding *give methods*:
   
 There are also certain special *give methods* that start with the word `_loaded`. These methods are reserved for lazy
 loading properties and must be protected. The purpose of these methods are to load the value of a lazy property. For
-more information regarding lazy properties, see [Properties](Properties.md)
+more information regarding lazy properties, see [Lazy Properties](Properties.md#lazy-properties)
   
 **Give method summary**
 
